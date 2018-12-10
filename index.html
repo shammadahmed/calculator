@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Calculator</title>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+		.calculator {
+			width: 300px;
+			margin: 100px auto;
+			font-size: 1.5em;
+			font-family: Helvetica, sans-serif;
+		}
+
+		button {
+			float: left;
+			color: white;
+			border: 0;
+			font-size: inherit;
+			height: 70px;
+			line-height: 70px;
+		}
+
+		button:hover {
+			opacity: .7;
+		}
+
+		.digits, .operators {
+			float: left;
+		}
+
+		.digits {
+			width: 75%;
+		}
+
+		.operators {
+			width: 25%;
+		}
+
+		.digits button {
+			width: 33.33%;
+			background-color: #2d98da;
+		}
+
+		.operators button {
+			width: 100%;
+			background-color: #3867d6;
+		}
+
+		#clear, #delete {
+			width: 50%;
+		}
+
+		#equal {
+			background-color: #45aaf2;
+		}
+
+		#clear {
+			background-color: #eb3b5a;
+		}
+
+		#delete {
+			background-color: #fc5c65;
+		}
+
+		#result {
+			background-color: #d1d8e0;
+			color: #4b6584;
+			text-align: right;
+			padding: 20px;
+			border-radius: 20px;
+		}
+		</style>
+</head>
+<body>
+	<section class="calculator">
+
+		<p id="result">0</p>
+
+		<div class="misc">
+			<button id="clear">Clear</button>
+			<button data-key="Backspace" id="delete">Del</button>
+		</div>
+
+		<div>
+			<div class="digits">
+				<button data-key="1" class="digit" data-digit="1">1</button>
+				<button data-key="2" class="digit" data-digit="2">2</button>
+				<button data-key="3" class="digit" data-digit="3">3</button>
+				<button data-key="4" class="digit" data-digit="4">4</button>
+				<button data-key="5" class="digit" data-digit="5">5</button>
+				<button data-key="6" class="digit" data-digit="6">6</button>
+				<button data-key="7" class="digit" data-digit="7">7</button>
+				<button data-key="8" class="digit" data-digit="8">8</button>
+				<button data-key="9" class="digit" data-digit="9">9</button>
+				<button data-key="=" id="equal">=</button>
+				<button data-key="0" class="digit" data-digit="0">0</button>
+				<button data-key="." id="decimal" data-digit=".">.</button>
+			</div>
+			<div class="operators">
+				<button data-key="+" class="operator" data-operator="add">+</button>
+				<button data-key="-" class="operator" data-operator="subtract">-</button>
+				<button data-key="*" class="operator" data-operator="multiply">*</button>
+				<button data-key="/" class="operator" data-operator="divide">/</button>
+			</div>
+		</div>
+
+	</section>
+	<script>
+		let firstOperand,
+			operator,
+			result = '0',
+			display = document.querySelector('#result');
+
+		let operators = {
+
+			add: function (a, b) {
+				return a + b;
+			},
+
+			subtract: function (a, b) {
+				return a - b;
+			},
+
+			multiply: function (a, b) {
+				return a * b;
+			},
+
+			divide: function (a, b) {
+				return a / b;
+			},
+		}
+
+		function updateDisplay() {
+			display.textContent = result;
+		}
+
+		function evaluate() {
+			if (!operator) return;
+			result = operators[operator](+firstOperand, +result);	
+
+			if (result.toString().length > 12) result = result.toFixed(10);
+
+			updateDisplay();
+		}
+
+		function enterDigit(e) {
+			result === '0' || operator ? result = e.target.dataset.digit : result += e.target.dataset.digit;
+			updateDisplay();
+		}
+
+		function enterDecimal() {
+			if (result.includes('.')) return;
+
+			result += '.';
+
+			updateDisplay();
+		}
+
+		function operate(e) {
+			if (firstOperand) {
+				evaluate();
+				firstOperand = result;
+			} else {
+				firstOperand = result;
+				operator = e.target.dataset.operator;
+			}
+
+			updateDisplay();
+		}
+
+		function answer() {
+			evaluate();
+			firstOperand = undefined;
+		}
+
+		function clear() {
+			firstOperand = undefined;
+			operator = undefined;
+			result = '0';
+			updateDisplay();
+		}
+
+		function del() {
+			result = result.slice(0, -1);
+			if (result === '') result = '0';
+			updateDisplay();
+		}
+
+		document.querySelectorAll('.digit').forEach(digit => {
+			digit.addEventListener('click', enterDigit);
+		});
+
+		document.querySelectorAll('.operator').forEach(op => {
+			op.addEventListener('click', operate);
+		});
+
+		document.querySelector('#decimal').addEventListener('click', enterDecimal);
+
+		document.querySelector('#equal').addEventListener('click', answer);
+
+		document.querySelector('#clear').addEventListener('click', clear);
+
+		document.querySelector('#delete').addEventListener('click', del);
+
+		document.addEventListener('keyup', e => {
+			if (document.querySelector(`[data-key="${e.key}"]`)) document.querySelector(`[data-key="${e.key}"]`).click();
+		});
+	</script>
+</body>
+</html>
